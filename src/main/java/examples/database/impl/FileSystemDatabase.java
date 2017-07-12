@@ -3,10 +3,18 @@ package examples.database.impl;
 import examples.database.api.Database;
 import examples.database.api.DatabaseActionResult;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.function.Predicate;
 
 public class FileSystemDatabase<T> implements Database<T> {
+	private final Path databaseDir;
+
+	public FileSystemDatabase(Path databaseDir) {
+		this.databaseDir = databaseDir;
+		initDatabaseDir();
+	}
 
 	@Override public DatabaseActionResult<T> getById(String id) {
 		return null;
@@ -32,5 +40,13 @@ public class FileSystemDatabase<T> implements Database<T> {
 	@Override public DatabaseActionResult<Void> deleteByPredicate(
 			Predicate<T> predicate) {
 		return null;
+	}
+
+	private void initDatabaseDir() {
+		if (Files.exists(databaseDir)) {
+			FileSystemUtils.deleteDirRecursively(databaseDir);
+		}
+
+		FileSystemUtils.createDirectory(databaseDir);
 	}
 }
