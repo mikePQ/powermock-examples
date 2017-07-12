@@ -13,6 +13,4 @@ public interface Database<T extends Identifiable> {
 	DatabaseActionResult<Void> addAll(Collection<T> toAdd);
 
 	DatabaseActionResult<Void> delete(String id);
-
-	DatabaseActionResult<Void> deleteByPredicate(Predicate<T> predicate);
 }

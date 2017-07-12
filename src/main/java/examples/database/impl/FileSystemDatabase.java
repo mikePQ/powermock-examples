@@ -3,51 +3,134 @@ package examples.database.impl;
 import examples.database.api.Database;
 import examples.database.api.DatabaseActionResult;
 import examples.database.api.Identifiable;
+import examples.database.objects.FileRepresentationToObjectMapper;
+import examples.database.objects.ObjectToFileRepresentationMapper;
 
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 	private final Path databaseDir;
+	private final ObjectToFileRepresentationMapper<T> objectToFileRepresentationMapper;
+	private final FileRepresentationToObjectMapper<T> fileRepresentationToObjectMapper;
 
-	public FileSystemDatabase(Path databaseDir) {
+	public FileSystemDatabase(Path databaseDir,
+			ObjectToFileRepresentationMapper<T> objectToFileRepresentationMapper,
+			FileRepresentationToObjectMapper<T> fileRepresentationToObjectMapper) {
+
 		this.databaseDir = databaseDir;
-		//initDatabaseDir();
+		this.objectToFileRepresentationMapper = objectToFileRepresentationMapper;
+		this.fileRepresentationToObjectMapper = fileRepresentationToObjectMapper;
+		initDatabaseDir();
 	}
 
 	@Override public DatabaseActionResult<T> getById(String id) {
-		return null;
+		try {
+			return new DatabaseActionResultImpl<>(getElemById(id), null);
+		}
+		catch (Exception e) {
+			return new DatabaseActionResultImpl<>(null, e);
+		}
 	}
 
 	@Override public DatabaseActionResult<Collection<T>> getByPredicate(
 			Predicate<T> predicate) {
-		return null;
+		try {
+			return new DatabaseActionResultImpl<>(getElemsByPredicate(predicate), null);
+		}
+		catch (Exception e) {
+			return new DatabaseActionResultImpl<>(null, e);
+		}
 	}
 
 	@Override public DatabaseActionResult<Void> add(T toAdd) {
-		return null;
+		try {
+			addElem(toAdd);
+			return new VoidDatabaseActionResult();
+		}
+		catch (Exception e) {
+			return new DatabaseActionResultImpl<>(null, e);
+		}
 	}
 
 	@Override public DatabaseActionResult<Void> addAll(Collection<T> toAdd) {
-		return null;
+		try {
+			addAllElems(toAdd);
+			return new VoidDatabaseActionResult();
+		}
+		catch (Exception e) {
+			return new DatabaseActionResultImpl<>(null, e);
+		}
 	}
 
 	@Override public DatabaseActionResult<Void> delete(String id) {
-		return null;
-	}
-
-	@Override public DatabaseActionResult<Void> deleteByPredicate(
-			Predicate<T> predicate) {
-		return null;
+		try {
+			deleteElemById(id);
+			return new VoidDatabaseActionResult();
+		}
+		catch (Exception e) {
+			return new DatabaseActionResultImpl<>(null, e);
+		}
 	}
 
 	private void initDatabaseDir() {
-		if (Files.exists(databaseDir)) {
-			FileSystemUtils.deleteDirRecursively(databaseDir);
+		if (!Files.exists(databaseDir)) {
+			FileSystemUtils.createDirectory(databaseDir);
+		}
+	}
+
+	private T getElemById(String id) throws Exception {
+		if (!FileSystemUtils.exists(id, databaseDir)) {
+			throw new FileNotFoundException("Cannot find file for id: " + id);
 		}
 
-		FileSystemUtils.createDirectory(databaseDir);
+		String fileContents = FileSystemUtils.readFile(id, databaseDir);
+		return fileRepresentationToObjectMapper.map(fileContents);
+	}
+
+	private Collection<T> getElemsByPredicate(Predicate<T> predicate) throws Exception {
+		Collection<T> result = new ArrayList<>();
+		FileSystemUtils.getAllFiles(databaseDir)
+				.forEach(path -> {
+					System.out.println("####" + path);
+					String fileContents = FileSystemUtils.readFile(path);
+					result.add(fileRepresentationToObjectMapper.map(fileContents));
+				});
+
+		return result.stream()
+				.filter(predicate)
+				.collect(Collectors.toList());
+	}
+
+	private void addElem(T elem) throws Exception {
+		Path elemFile = Paths.get(databaseDir.toString(), elem.getId());
+		FileSystemUtils.createFile(elemFile);
+		FileSystemUtils.writeFile(elemFile, Collections.singletonList(objectToFileRepresentationMapper.map(elem)));
+	}
+
+	private void addAllElems(Collection<T> elems) {
+		elems.forEach(e -> {
+			try {
+				addElem(e);
+			}
+			catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		});
+	}
+
+	private void deleteElemById(String id) throws Exception {
+		if (!FileSystemUtils.exists(id, databaseDir)) {
+			return;
+		}
+
+		FileSystemUtils.deleteFile(id, databaseDir);
 	}
 }
