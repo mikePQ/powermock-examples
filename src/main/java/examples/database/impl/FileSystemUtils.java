@@ -22,6 +22,10 @@ class FileSystemUtils {
 		ignoreIOExceptions(() -> Files.createDirectory(dir));
 	}
 
+	static void createFile(Path file) {
+		ignoreIOExceptions(() -> Files.createFile(file));
+	}
+
 	private static void ignoreIOExceptions(IOExecutable executable) {
 		try {
 			executable.execute();
