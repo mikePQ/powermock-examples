@@ -3,10 +3,8 @@ package examples.database.api;
 import java.util.Collection;
 import java.util.Optional;
 
-public interface DatabaseActionResult<T> {
+public interface DatabaseActionResult {
 	boolean isSuccessful();
 
 	Collection<String> getErrorMessages();
-
-	T getResult();
 }

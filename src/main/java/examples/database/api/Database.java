@@ -4,13 +4,13 @@ import java.util.Collection;
 import java.util.function.Predicate;
 
 public interface Database<T extends Identifiable> {
-	DatabaseActionResult<T> getById(String id);
+	DatabaseActionResultWithValue<T> getById(String id);
 
-	DatabaseActionResult<Collection<T>> getByPredicate(Predicate<T> predicate);
+	DatabaseActionResultWithValue<Collection<T>> getByPredicate(Predicate<T> predicate);
 
-	DatabaseActionResult<Void> add(T toAdd);
+	DatabaseActionResult add(T toAdd);
 
-	DatabaseActionResult<Void> addAll(Collection<T> toAdd);
+	DatabaseActionResult addAll(Collection<T> toAdd);
 
-	DatabaseActionResult<Void> delete(String id);
+	DatabaseActionResult delete(String id);
 }

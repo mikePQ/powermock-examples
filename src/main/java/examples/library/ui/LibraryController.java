@@ -1,6 +1,6 @@
 package examples.library.ui;
 
-import examples.database.api.DatabaseActionResult;
+import examples.database.api.DatabaseActionResultWithValue;
 import examples.library.Book;
 import examples.library.BookDatabase;
 import javafx.collections.FXCollections;
@@ -78,11 +78,11 @@ public class LibraryController implements Initializable {
 
 	void refreshTable() {
 		BookDatabase database = BookDatabase.get();
-		DatabaseActionResult<Collection<Book>> getBooksResult = database.getByPredicate(
+		DatabaseActionResultWithValue<Collection<Book>> getBooksResult = database.getByPredicate(
 				book -> true);
 
 		if (getBooksResult.isSuccessful()) {
-			Collection<Book> booksCollection = getBooksResult.getResult();
+			Collection<Book> booksCollection = getBooksResult.getValue();
 			booksTable.setItems(FXCollections.observableArrayList(booksCollection));
 		}
 	}

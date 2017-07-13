@@ -2,6 +2,7 @@ package examples.database.impl;
 
 import examples.database.api.Database;
 import examples.database.api.DatabaseActionResult;
+import examples.database.api.DatabaseActionResultWithValue;
 import examples.database.api.Identifiable;
 import examples.database.objects.FileRepresentationToObjectMapper;
 import examples.database.objects.ObjectToFileRepresentationMapper;
@@ -31,7 +32,7 @@ public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 		initDatabaseDir();
 	}
 
-	@Override public DatabaseActionResult<T> getById(String id) {
+	@Override public DatabaseActionResultWithValue<T> getById(String id) {
 		try {
 			return new DatabaseActionResultImpl<>(getElemById(id), null);
 		}
@@ -40,7 +41,7 @@ public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 		}
 	}
 
-	@Override public DatabaseActionResult<Collection<T>> getByPredicate(
+	@Override public DatabaseActionResultWithValue<Collection<T>> getByPredicate(
 			Predicate<T> predicate) {
 		try {
 			return new DatabaseActionResultImpl<>(getElemsByPredicate(predicate), null);
@@ -50,7 +51,7 @@ public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 		}
 	}
 
-	@Override public DatabaseActionResult<Void> add(T toAdd) {
+	@Override public DatabaseActionResult add(T toAdd) {
 		try {
 			addElem(toAdd);
 			return new VoidDatabaseActionResult();
@@ -60,7 +61,7 @@ public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 		}
 	}
 
-	@Override public DatabaseActionResult<Void> addAll(Collection<T> toAdd) {
+	@Override public DatabaseActionResult addAll(Collection<T> toAdd) {
 		try {
 			addAllElems(toAdd);
 			return new VoidDatabaseActionResult();
@@ -70,7 +71,7 @@ public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 		}
 	}
 
-	@Override public DatabaseActionResult<Void> delete(String id) {
+	@Override public DatabaseActionResult delete(String id) {
 		try {
 			deleteElemById(id);
 			return new VoidDatabaseActionResult();
@@ -112,7 +113,8 @@ public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 	private void addElem(T elem) throws Exception {
 		Path elemFile = Paths.get(databaseDir.toString(), elem.getId());
 		FileSystemUtils.createFile(elemFile);
-		FileSystemUtils.writeFile(elemFile, Collections.singletonList(objectToFileRepresentationMapper.map(elem)));
+		FileSystemUtils.writeFile(elemFile,
+				Collections.singletonList(objectToFileRepresentationMapper.map(elem)));
 	}
 
 	private void addAllElems(Collection<T> elems) {
