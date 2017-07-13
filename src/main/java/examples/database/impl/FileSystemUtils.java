@@ -1,38 +1,39 @@
 package examples.database.impl;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.*;
-import java.util.Comparator;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
-class FileSystemUtils {
+public class FileSystemUtils {
 
 	private FileSystemUtils() {
 	}
 
-	static void createDirectory(Path dir) {
+	public static void createDirectory(Path dir) {
 		ignoreIOExceptions(() -> Files.createDirectories(dir));
 	}
 
-	static void createFile(Path file) {
+	public static void createFile(Path file) {
 		ignoreIOExceptions(() -> Files.createFile(file));
 	}
 
-	static void deleteFile(String file, Path parent) throws IOException {
+	public static void deleteFile(String file, Path parent) throws IOException {
 		Files.delete(Paths.get(parent.toString(), file));
 	}
 
-	static boolean exists(String file, Path parent) {
+	public static boolean exists(String file, Path parent) {
 		return Files.exists(Paths.get(parent.toString(), file));
 	}
 
-	static String readFile(String file, Path parent) throws IOException {
+	public static String readFile(String file, Path parent) throws IOException {
 		return readFile(Paths.get(parent.toString(), file));
 	}
 
-	static String readFile(Path file) {
+	public static String readFile(Path file) {
 		try {
 			byte[] bytes = Files.readAllBytes(file);
 			return new String(bytes);
@@ -42,11 +43,11 @@ class FileSystemUtils {
 		}
 	}
 
-	static DirectoryStream<Path> getAllFiles(Path directory) throws IOException {
+	public static DirectoryStream<Path> getAllFiles(Path directory) throws IOException {
 		return Files.newDirectoryStream(directory);
 	}
 
-	static void writeFile(Path elemFile, List<String> strings) throws IOException {
+	public static void writeFile(Path elemFile, List<String> strings) throws IOException {
 		Files.write(elemFile, strings);
 	}
 
