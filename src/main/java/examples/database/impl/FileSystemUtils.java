@@ -9,11 +9,7 @@ import java.util.List;
 
 class FileSystemUtils {
 
-	static void deleteDirRecursively(Path dir) {
-		ignoreIOExceptions(() -> Files.walk(dir, FileVisitOption.FOLLOW_LINKS)
-				.sorted(Comparator.reverseOrder())
-				.map(Path::toFile)
-				.forEach(File::delete));
+	private FileSystemUtils() {
 	}
 
 	static void createDirectory(Path dir) {
@@ -61,9 +57,6 @@ class FileSystemUtils {
 		catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
-	}
-
-	private FileSystemUtils() {
 	}
 
 	@FunctionalInterface interface IOExecutable {

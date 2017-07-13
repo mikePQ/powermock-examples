@@ -1,4 +1,4 @@
-package examples.library;
+package examples.library.ui.model;
 
 import examples.database.api.Identifiable;
 

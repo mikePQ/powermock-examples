@@ -1,7 +1,7 @@
-package examples.library.ui;
+package examples.library.ui.controllers;
 
-import examples.library.Book;
-import examples.library.BookDatabase;
+import examples.library.ui.model.Book;
+import examples.library.ui.model.BookDatabase;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;

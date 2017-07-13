@@ -6,6 +6,8 @@ import examples.database.api.DatabaseActionResultWithValue;
 import examples.database.api.Identifiable;
 import examples.database.objects.FileRepresentationToObjectMapper;
 import examples.database.objects.ObjectToFileRepresentationMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
@@ -18,6 +20,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
+	private static final Logger logger = LoggerFactory.getLogger(FileSystemDatabase.class);
+
 	private final Path databaseDir;
 	private final ObjectToFileRepresentationMapper<T> objectToFileRepresentationMapper;
 	private final FileRepresentationToObjectMapper<T> fileRepresentationToObjectMapper;
@@ -100,7 +104,6 @@ public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 		Collection<T> result = new ArrayList<>();
 		FileSystemUtils.getAllFiles(databaseDir)
 				.forEach(path -> {
-					System.out.println("####" + path);
 					String fileContents = FileSystemUtils.readFile(path);
 					result.add(fileRepresentationToObjectMapper.map(fileContents));
 				});
@@ -123,7 +126,7 @@ public class FileSystemDatabase<T extends Identifiable> implements Database<T> {
 				addElem(e);
 			}
 			catch (Exception e1) {
-				e1.printStackTrace();
+				logger.warn(e1.getMessage(), e);
 			}
 		});
 	}

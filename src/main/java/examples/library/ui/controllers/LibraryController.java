@@ -1,8 +1,10 @@
-package examples.library.ui;
+package examples.library.ui.controllers;
 
+import examples.database.api.DatabaseActionResult;
 import examples.database.api.DatabaseActionResultWithValue;
-import examples.library.Book;
-import examples.library.BookDatabase;
+import examples.library.ui.model.Book;
+import examples.library.ui.model.BookDatabase;
+import examples.library.ui.LibraryApp;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,12 +16,17 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
 public class LibraryController implements Initializable {
+	private static final Logger logger = LoggerFactory.getLogger(LibraryController
+			.class);
+
 	private Stage primaryStage;
 
 	@FXML private TableView<Book> booksTable;
@@ -38,8 +45,6 @@ public class LibraryController implements Initializable {
 	}
 
 	public void addBook() {
-		System.out.println("add pressed");
-
 		try {
 			FXMLLoader loader = new FXMLLoader(
 					LibraryApp.class.getResource("/fxml/addBookView.fxml"));
@@ -62,7 +67,7 @@ public class LibraryController implements Initializable {
 
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 	}
 
@@ -70,24 +75,32 @@ public class LibraryController implements Initializable {
 		Book selectedItem = booksTable.getSelectionModel()
 				.getSelectedItem();
 
-		BookDatabase.get()
+		DatabaseActionResult deleteResult = BookDatabase.get()
 				.delete(selectedItem.getId());
+
+		if (!deleteResult.isSuccessful()) {
+			logger.warn(deleteResult.getErrorMessage());
+		}
 
 		refreshTable();
 	}
 
 	void refreshTable() {
 		BookDatabase database = BookDatabase.get();
-		DatabaseActionResultWithValue<Collection<Book>> getBooksResult = database.getByPredicate(
+		DatabaseActionResultWithValue<Collection<Book>> getBooksResult = database
+				.getByPredicate(
 				book -> true);
 
 		if (getBooksResult.isSuccessful()) {
 			Collection<Book> booksCollection = getBooksResult.getValue();
 			booksTable.setItems(FXCollections.observableArrayList(booksCollection));
 		}
+		else {
+			logger.warn(getBooksResult.getErrorMessage());
+		}
 	}
 
-	void setPrimaryStage(Stage primaryStage) {
+	public void setPrimaryStage(Stage primaryStage) {
 		this.primaryStage = primaryStage;
 	}
 }

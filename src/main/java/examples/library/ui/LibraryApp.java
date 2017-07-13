@@ -1,12 +1,17 @@
 package examples.library.ui;
 
+import examples.library.ui.controllers.LibraryController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LibraryApp extends Application {
+
+	private static final Logger logger = LoggerFactory.getLogger(LibraryApp.class);
 
 	public static void main(String[] args) {
 		launch(args);
@@ -29,8 +34,7 @@ public class LibraryApp extends Application {
 			primaryStage.show();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 	}
-
 }

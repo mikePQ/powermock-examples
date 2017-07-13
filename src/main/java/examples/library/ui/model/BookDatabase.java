@@ -1,4 +1,4 @@
-package examples.library;
+package examples.library.ui.model;
 
 import examples.database.impl.FileSystemDatabase;
 import examples.database.objects.FileRepresentationToObjectMapper;

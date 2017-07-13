@@ -2,9 +2,6 @@ package examples.database.impl;
 
 import examples.database.api.DatabaseActionResultWithValue;
 
-import java.util.Collection;
-import java.util.Collections;
-
 public class DatabaseActionResultImpl<T> implements DatabaseActionResultWithValue<T> {
 	private final Exception exceptionThrown;
 	private final T value;
@@ -18,10 +15,8 @@ public class DatabaseActionResultImpl<T> implements DatabaseActionResultWithValu
 		return exceptionThrown == null;
 	}
 
-	@Override public Collection<String> getErrorMessages() {
-		return exceptionThrown != null ?
-				Collections.singletonList(exceptionThrown.getMessage()) :
-				Collections.emptyList();
+	@Override public String getErrorMessage() {
+		return exceptionThrown != null ? exceptionThrown.getMessage() : "";
 	}
 
 	@Override public T getValue() {
