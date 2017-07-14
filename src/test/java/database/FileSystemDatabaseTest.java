@@ -4,6 +4,8 @@ import examples.database.api.DatabaseActionResultWithValue;
 import examples.database.api.Identifiable;
 import examples.database.impl.FileSystemDatabase;
 import examples.database.impl.FileSystemUtils;
+import examples.database.objects.FileRepresentationToObjectMapper;
+import examples.database.objects.ObjectToFileRepresentationMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,8 +23,10 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -52,4 +56,24 @@ public class FileSystemDatabaseTest {
 		assertEquals("Cannot find file for id: " + id, result.getErrorMessage());
 	}
 
+	@Test
+	public void givenIdWhenFileExistsThenGetObjectFromFile() {
+		when(FileSystemUtils.exists(anyString(), any())).thenReturn(true);
+
+		Path dir = Paths.get("dir");
+		String id = UUID.randomUUID().toString();
+
+		Identifiable identifiable = mock(Identifiable.class);
+		when(identifiable.getId()).thenReturn(id);
+
+		FileRepresentationToObjectMapper<Identifiable> fileRepresentationToObjectMapper = mock(FileRepresentationToObjectMapper.class);
+		when(fileRepresentationToObjectMapper.map(anyString())).thenReturn(identifiable);
+
+		FileSystemDatabase<Identifiable> database = new FileSystemDatabase<>(dir, null, fileRepresentationToObjectMapper);
+		DatabaseActionResultWithValue<Identifiable> result = database.getById(id);
+
+		assertTrue(result.isSuccessful());
+		assertEquals("", result.getErrorMessage());
+		assertEquals(identifiable, result.getValue());
+	}
 }
