@@ -16,17 +16,14 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -76,4 +73,21 @@ public class FileSystemDatabaseTest {
 		assertEquals("", result.getErrorMessage());
 		assertEquals(identifiable, result.getValue());
 	}
+
+	@Test
+	public void whenAddElemToDatabaseThenCreateFileAndSaveObject() {
+		String id = UUID.randomUUID().toString();
+		Identifiable identifiable = mock(Identifiable.class);
+		when(identifiable.getId()).thenReturn(id);
+
+		ObjectToFileRepresentationMapper<Identifiable> mapper = mock(ObjectToFileRepresentationMapper.class);
+		when(mapper.map(any())).thenReturn("{id: \"" + id + "\"}");
+
+		Path dir = Paths.get("dir");
+		FileSystemDatabase<Identifiable> database = new FileSystemDatabase<>(dir, mapper, null);
+
+		database.add(identifiable);
+		verifyStatic(times(2));
+	}
+
 }
